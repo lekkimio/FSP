@@ -2,7 +2,7 @@ package com.company;
 
 import java.util.*;
 
-public class MyLinkedList<E> implements List<E> {
+public class MyLinkedList<E>{
 
     private Node<E> head;
     private Node<E> tail;
@@ -21,6 +21,7 @@ public class MyLinkedList<E> implements List<E> {
         size--;
         return value;
     }
+
     private E removeLastEl(Node<E> t) {
         E value = t.value;
         Node<E> prev = t.prev;
@@ -35,26 +36,17 @@ public class MyLinkedList<E> implements List<E> {
         return value;
     }
 
-//    private void addFirst(E element) {
-//        Node<E> h = head;
-//        Node<E> newNode = new Node<>(element, h, null);
-//        head = newNode;
-//        if (h == null)
-//            tail = newNode;
-//        else
-//            h.prev = newNode;
-//        size++;
-//    }
-    private void addLast(E element) {
-        Node<E> t = tail;
-        Node<E> newNode = new Node<>(element, null, t);
-        tail = newNode;
-        if (t == null)
-            head = newNode;
+    private void addFirst(E element) {
+        Node<E> h = head;
+        Node<E> newNode = new Node<>(element, h, null);
+        head = newNode;
+        if (h == null)
+            tail = newNode;
         else
-            t.next = newNode;
+            h.prev = newNode;
         size++;
     }
+
     private void addAfore(E element, Node<E> node) {
         Node<E> af = node.prev;
         Node<E> newNode = new Node<>(element, node, af);
@@ -66,24 +58,22 @@ public class MyLinkedList<E> implements List<E> {
         size++;
     }
 
+    private void addLast(E element) {
+        Node<E> t = tail;
+        Node<E> newNode = new Node<>(element, null, t);
+        tail = newNode;
+        if (t == null)
+            head = newNode;
+        else
+            t.next = newNode;
+        size++;
+    }
+
     public boolean add(E value){
         addLast(value);
         return true;
     }
-    public E get(int index){
-        int currentIndex = 0;
-        Node<E> temp = head;
 
-        while (temp != null){
-            if (currentIndex == index){
-                return temp.value;
-            }else {
-                temp = temp.next;
-                currentIndex++;
-            }
-        }
-        throw new IllegalArgumentException();
-    }
     public E remove(int index){
         if (index == 0){
             head = head.getNext();
@@ -114,20 +104,43 @@ public class MyLinkedList<E> implements List<E> {
         }
         return removeFirstEl(h);
     }
+
     public E removeFirst(){
         return remove();
     }
+
     public E removeLast(){
-        final Node<E> t = tail;
+        Node<E> t = tail;
         if (t == null){
             throw new NoSuchElementException();
         }
-         return removeLastEl(t);
+        return removeLastEl(t);
     }
 
+    public E get(int index){
+        int currentIndex = 0;
+        Node<E> temp = head;
 
+        while (temp != null){
+            if (currentIndex == index){
+                return temp.value;
+            }else {
+                temp = temp.next;
+                currentIndex++;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
 
-    @Override
+    public E getFirst(){
+
+        return head.getValue();
+    }
+
+    public E getLast(){
+        return tail.getValue();
+    }
+
     public void clear() {
         for(Node<E> h = head; h != null;){
             Node<E> n = h.next;
@@ -137,15 +150,15 @@ public class MyLinkedList<E> implements List<E> {
         head = tail = null;
         size = 0;
     }
-    @Override
+
     public int size() {
         return size;
     }
 
-    @Override
-    public  Iterator<E> iterator() {
+    private     Iterator<E> iterator() {
         return new Itr();
     }
+
     private class Itr implements Iterator<E> {
 
         int index = 0;
@@ -186,10 +199,9 @@ public class MyLinkedList<E> implements List<E> {
         }
     }
 
-
-    @Override
     public void add(int index, E element) {
-        checkIndex(index);
+        if (!(index >= 0 && index <= size)){
+            throw new IndexOutOfBoundsException();}
 
         if (index == size){
             addLast(element);
@@ -197,111 +209,125 @@ public class MyLinkedList<E> implements List<E> {
             addAfore(element, Node(index));
         }
     }
-    private void checkIndex(int index) {
-        if (!(index >= 0 && index <= size))
-            throw new IndexOutOfBoundsException();
-    }
-    Node<E> Node(int index) {
-        Node<E> x;
-        if (index < (size >> 1)) {
-            x = head;
-            for (int i = 0; i < index; i++)
-                x = x.next;
-        } else {
-            x = tail;
-            for (int i = size - 1; i > index; i--)
-                x = x.prev;
-        }
-        return x;
-    }
 
-    //TODO: all that
-
-    @Override
-    public E set(int index, E element) {
-        return null;
-    }
-
-    @Override
     public boolean isEmpty() {
-        return false;
+        return size() == 0;
     }
 
-    @Override
     public boolean contains(Object o) {
+        Iterator<E> iterator = iterator();
+        if (o == null) {
+            while (iterator.hasNext()) {
+                if (iterator.next() == null)
+                    return true;
+            }
+        } else {
+            while (iterator.hasNext()) {
+                if (o.equals(iterator.next()))
+                    return true;
+            }
+        }
         return false;
     }
 
+    public E set(int index, E element) {
+        if (!(index >= 0 && index <= size)){
+            throw new IndexOutOfBoundsException();}
 
+        Node<E> node = Node(index);
+        E val = node.value;
+        node.value = element;
 
-    @Override
-    public Object[] toArray() {
-        return new Object[0];
+        return val;
     }
 
-    @Override
-    public <T> T[] toArray(T[] a) {
-        return null;
-    }
-
-    @Override
     public boolean remove(Object o) {
+        Iterator<E> iterator = iterator();
+        if (o == null) {
+            while (iterator.hasNext()) {
+                if (iterator.next() == null)
+                    iterator.remove();
+                return true;
+            }
+        } else {
+            while (iterator.hasNext()) {
+                if (o.equals(iterator.next())) {
+                    iterator.remove();
+                }
+                return true;
+            }
+        }
         return false;
     }
 
-    @Override
-    public boolean containsAll(Collection<?> c) {
-        return false;
+    public Object[] toArray() {
+
+        Object[] nodeArr = new Object[size];
+        int index = 0;
+        for (Node<E> t = head; t!=null ; t=t.next) {
+            nodeArr[index++]=t.value;
+        }
+
+        return nodeArr;
     }
 
-
-    @Override
-    public boolean addAll(Collection<? extends E> c) {
-        return false;
-    }
-
-    @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
-        return false;
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        return false;
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        return false;
-    }
-
-
-    @Override
     public int indexOf(Object o) {
-        return 0;
+        int index = 0;
+        if (o == null) {
+            for (Node<E> temp = head; temp != null; temp = temp.next) {
+                if (temp.value == null) {
+                    return index;
+                }
+                index++;
+            }
+        } else {
+            for (Node<E> temp = head; temp != null; temp = temp.next) {
+                if (o.equals(temp.value)) {
+                    return index;
+                }
+                index++;
+            }
+
+        }
+        return -1;
     }
 
-    @Override
     public int lastIndexOf(Object o) {
-        return 0;
+        int index = size;
+        if (o == null) {
+            for (Node<E> temp = tail; temp != null; temp = temp.prev) {
+                if (temp.value == null) {
+                    return index;
+                }
+                index--;
+            }
+        } else {
+            for (Node<E> temp = tail; temp != null; temp = temp.prev) {
+                if (o.equals(temp.value)) {
+                    return index;
+                }
+                index--;
+            }
+
+        }
+        return -1;
     }
 
-    @Override
-    public ListIterator<E> listIterator() {
-        return null;
+    public <T> T[] toArray(T[] a) {
+        if(a.length < size){
+            a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+        }
+
+        Object[] nodeArr = a;
+        int index = 0;
+        for (Node<E> t = head; t!=null ; t=t.next) {
+            nodeArr[index++]=t.value;
+        }
+
+        return a;
     }
 
-    @Override
-    public ListIterator<E> listIterator(int index) {
-        return null;
-    }
-
-
-    @Override
-    public List<E> subList(int fromIndex, int toIndex) {
-        return null;
-    }
-
+    //Node class and Obj
     private static class Node<E>{
 
         private E value;
@@ -337,5 +363,52 @@ public class MyLinkedList<E> implements List<E> {
         public void setPrev(Node<E> prev) {
             this.prev = prev;
         }
+    }
+
+    private Node<E> Node(int index) {
+        Node<E> x;
+        if (index < (size >> 1)) {
+            x = head;
+            for (int i = 0; i < index; i++)
+                x = x.next;
+        } else {
+            x = tail;
+            for (int i = size - 1; i > index; i--)
+                x = x.prev;
+        }
+        return x;
+    }
+    //TODO: all that
+
+    public boolean containsAll(Collection<?> c) {
+        return false;
+    }
+
+    public boolean addAll(Collection<? extends E> c) {
+        return false;
+    }
+
+    public boolean addAll(int index, Collection<? extends E> c) {
+        return false;
+    }
+
+    public boolean removeAll(Collection<?> c) {
+        return false;
+    }
+
+    public boolean retainAll(Collection<?> c) {
+        return false;
+    }
+
+    public ListIterator<E> listIterator() {
+        return null;
+    }
+
+    public ListIterator<E> listIterator(int index) {
+        return null;
+    }
+
+    public List<E> subList(int fromIndex, int toIndex) {
+        return null;
     }
 }
