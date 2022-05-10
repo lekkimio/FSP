@@ -1,3 +1,3 @@
-#ArrayList and LinkedList 
+# ArrayList and LinkedList 
 
-Власна реавлізація ArrayList та LinkedList
+Власна реалізація ArrayList та LinkedList
